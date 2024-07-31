@@ -1,8 +1,9 @@
 // token : "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZGVudGlmaWVyIjoiQkVMTFNDT1JQIiwidmVyc2lvbiI6InYyLjIuMCIsInJlc2V0X2RhdGUiOiIyMDI0LTA3LTIxIiwiaWF0IjoxNzIyMzk1MzUwLCJzdWIiOiJhZ2VudC10b2tlbiJ9.iv7OIZGEwpvv1ZKzOv1nspZc8QGjMGIyVRWZZPBYIE-m7l46eM55o043TA7J450ih6IDtseD5QY0VNy6TTc_9zrpHf7hNVxnIVaSg9nYtObRERxJuwSpiufq73RpaKLqhSAE96H9yCvklssYs-ad4g6NKwLN456KBPP8-9bCuxUogi3tWgC2xAuCCH_iSAFQZDy0lhS-tYuwxzI5e2PNzKoyA3c7EnKT4Fe-kUnG6yFEb3PiJS8bOX2R4SRqp1ix8V17v9D9PnA2lF4QvQ7hbU2qt1BrPlEMaKThxH9eMA_xIyz2XalHgpvEga-IqNrj0Zb9pL5_q3C4s93lYfWOjA"
 
 let shipDetails = null;
-const url = "https://api.spacetraders.io/v2/my/agent"
-const waypt = "https://api.spacetraders.io/v2/systems/X1-QA42/waypoints/"
+const url = "https://api.spacetraders.io/v2/my/agent";
+const waypt = "https://api.spacetraders.io/v2/systems/X1-QA42/waypoints/";
+const contract = "https://api.spacetraders.io/v2/my/contracts";
 const options = {
     headers: {
       'Content-Type': 'application/json',
@@ -28,20 +29,22 @@ async function getShipLocation(data){
     let wayptDetails = shipDetails.data.headquarters;
     let response = await axios.get(waypt+wayptDetails);
 
-    
-    console.log(response.data);
-    
-    console.log(response.data.data.systemSymbol);
-    // console.log(wayptDetails.data.symbol);
-    // console.log(wayptDetails.data.type);
-    // console.log(wayptDetails.data.x);
-    // console.log(wayptDetails.data.y)
+    return response.data;
 
+}
+
+async function getContract(data){
+
+    let response = await axios.get(contract, options);
+    // console.log(response.data);
+    return response.data;
 }
 
 async function main(){
 
     shipDetails  = await getShipInfo();
+    let currentLocation = await getShipLocation();
+    let contractDetails = await getContract();
 
     let shipButton = document.querySelector("#shipStatus");
     shipButton.addEventListener("click", function(){
@@ -63,8 +66,25 @@ async function main(){
     })
 
     
-    // console.log(waypt+wayptDetails);
-    getShipLocation();
+    document.querySelector("#locationBtn").addEventListener("click", function(){
+        console.log();
+        let locationOutput = document.querySelector("#location");
+        locationOutput.innerHTML = `${shipDetails.data.symbol} is currently in 
+        ${currentLocation.data.type} ${currentLocation.data.systemSymbol},
+        on coordinates (${currentLocation.data.x},${currentLocation.data.y}).
+
+            
+
+        `;
+        
+        
+
+    })
+    
+    document.querySelector("#missionBtn").addEventListener("click", function(){
+
+        console.log(contractDetails.data[0].accepted);        
+    })
 
 }
 
